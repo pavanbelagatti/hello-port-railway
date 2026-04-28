@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-port-railway
+  namespace: default
+  labels:
+    app: hello-port-railway
+    managed-by: port
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-port-railway
+  template:
+    metadata:
+      labels:
+        app: hello-port-railway
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/pavanbelagatti/hello-port-railway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: PORT
+              value: "8080"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
